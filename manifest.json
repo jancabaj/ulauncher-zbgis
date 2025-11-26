@@ -1,0 +1,16 @@
+{
+  "required_api_version": "2",
+  "name": "ZBGIS Search",
+  "description": "Search ZBGIS Slovak cadastral map",
+  "developer_name": "cabaj",
+  "icon": "images/icon.png",
+  "preferences": [
+    {
+      "id": "zbgis_keyword",
+      "type": "keyword",
+      "name": "ZBGIS",
+      "description": "Search ZBGIS cadastral map",
+      "default_value": "zbgis"
+    }
+  ]
+}
