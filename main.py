@@ -109,7 +109,7 @@ class KeywordQueryEventListener(EventListener):
             cadastre = extension.cadastre_data.find_cadastre(location_query)
 
             if cadastre and cadastre['code']:
-                # Build direct URLs for both parcel and house number
+                # Build direct URL for parcel
                 cadastre_code = cadastre['code']
                 x = cadastre['x']
                 y = cadastre['y']
@@ -121,9 +121,6 @@ class KeywordQueryEventListener(EventListener):
                 # Parcel URL
                 parcel_url = f"https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster/parcela-c/{cadastre_code}/{encoded_number}?pos={pos}"
 
-                # House number URL (súpisné číslo - registration number)
-                house_url = f"https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster/budova-sc/{cadastre_code}/{encoded_number}?pos={pos}"
-
                 # Add parcel option
                 results.append(
                     ExtensionResultItem(
@@ -134,34 +131,16 @@ class KeywordQueryEventListener(EventListener):
                     )
                 )
 
-                # Add house number option
-                results.append(
-                    ExtensionResultItem(
-                        icon='images/icon.png',
-                        name=f'House {number} in {cadastre["name"]}',
-                        description=f'Open building detail (cadastre code: {cadastre_code})',
-                        on_enter=OpenUrlAction(house_url)
-                    )
-                )
-
-        # If query is a number (digits and/or slashes), show hint
+        # If query is a parcel number (digits and/or slashes), show hint
         elif is_parcel_number(query.strip()):
             number = query.strip()
 
-            # Show hints for both parcel and house number search
+            # Show hint for parcel search
             results.append(
                 ExtensionResultItem(
                     icon='images/icon.png',
-                    name=f'Number: {number}',
-                    description='Tip: Use "location number" for direct links (e.g., "nitra 143/12")',
-                    on_enter=None
-                )
-            )
-            results.append(
-                ExtensionResultItem(
-                    icon='images/icon.png',
-                    name=f'Will search as parcel or house number',
-                    description='Both parcel and house number options will be shown',
+                    name=f'Parcel number: {number}',
+                    description='Tip: Use "location number" for direct parcel link (e.g., "nitra 143/12")',
                     on_enter=None
                 )
             )
