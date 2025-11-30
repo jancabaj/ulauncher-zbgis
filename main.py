@@ -115,11 +115,14 @@ class KeywordQueryEventListener(EventListener):
                 y = cadastre['y']
                 pos = f"{y},{x},15"
 
+                # URL-encode the number (e.g., "445/2" becomes "445%2F2")
+                encoded_number = urllib.parse.quote(number, safe='')
+
                 # Parcel URL
-                parcel_url = f"https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster/parcela-c/{cadastre_code}/{number}?pos={pos}"
+                parcel_url = f"https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster/parcela-c/{cadastre_code}/{encoded_number}?pos={pos}"
 
                 # House number URL (súpisné číslo - registration number)
-                house_url = f"https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster/budova-sc/{cadastre_code}/{number}?pos={pos}"
+                house_url = f"https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster/budova-sc/{cadastre_code}/{encoded_number}?pos={pos}"
 
                 # Add parcel option
                 results.append(
