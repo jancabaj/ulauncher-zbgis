@@ -100,38 +100,65 @@ class KeywordQueryEventListener(EventListener):
         query_parts = query.strip().split()
 
         # Check if query has format "location parcel_number"
-        if len(query_parts) == 2 and query_parts[1].isdigit():
-            location_query, parcel_num = query_parts
+        # Parcel numbers can contain digits and slashes (e.g., "143/12")
+        def is_parcel_number(s):
+            return all(c.isdigit() or c == '/' for c in s) and any(c.isdigit() for c in s)
+
+        if len(query_parts) == 2 and is_parcel_number(query_parts[1]):
+            location_query, number = query_parts
             cadastre = extension.cadastre_data.find_cadastre(location_query)
 
             if cadastre and cadastre['code']:
-                # Build direct parcel detail URL
+                # Build direct URLs for both parcel and house number
                 cadastre_code = cadastre['code']
                 x = cadastre['x']
                 y = cadastre['y']
                 pos = f"{y},{x},15"
 
-                detail_url = f"https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster/parcela-c/{cadastre_code}/{parcel_num}?pos={pos}"
+                # Parcel URL
+                parcel_url = f"https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster/parcela-c/{cadastre_code}/{number}?pos={pos}"
 
+                # House number URL (súpisné číslo - registration number)
+                house_url = f"https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster/budova-sc/{cadastre_code}/{number}?pos={pos}"
+
+                # Add parcel option
                 results.append(
                     ExtensionResultItem(
                         icon='images/icon.png',
-                        name=f'Parcel {parcel_num} in {cadastre["name"]}',
+                        name=f'Parcel {number} in {cadastre["name"]}',
                         description=f'Open parcel detail (cadastre code: {cadastre_code})',
-                        on_enter=OpenUrlAction(detail_url)
+                        on_enter=OpenUrlAction(parcel_url)
                     )
                 )
 
-        # If query is purely numeric, try to offer parcel search for common cadastres
-        elif query.strip().isdigit():
-            parcel_num = query.strip()
+                # Add house number option
+                results.append(
+                    ExtensionResultItem(
+                        icon='images/icon.png',
+                        name=f'House {number} in {cadastre["name"]}',
+                        description=f'Open building detail (cadastre code: {cadastre_code})',
+                        on_enter=OpenUrlAction(house_url)
+                    )
+                )
 
-            # Show a general search hint
+        # If query is a number (digits and/or slashes), show hint
+        elif is_parcel_number(query.strip()):
+            number = query.strip()
+
+            # Show hints for both parcel and house number search
             results.append(
                 ExtensionResultItem(
                     icon='images/icon.png',
-                    name=f'Search parcel number: {parcel_num}',
-                    description='Tip: Use "location parcel_number" for direct link (e.g., "nitra 123")',
+                    name=f'Number: {number}',
+                    description='Tip: Use "location number" for direct links (e.g., "nitra 143/12")',
+                    on_enter=None
+                )
+            )
+            results.append(
+                ExtensionResultItem(
+                    icon='images/icon.png',
+                    name=f'Will search as parcel or house number',
+                    description='Both parcel and house number options will be shown',
                     on_enter=None
                 )
             )
